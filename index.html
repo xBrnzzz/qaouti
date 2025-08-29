@@ -419,10 +419,19 @@
               { name: "Emincé de Boeuf", price: 60 },
               { name: "Poulet à la Tarascon", price: 60 },
               { name: "Poulet India", price: 55 }
-            ],options: {Jus:[{ name:"Jus de choix", price:20 },
+            ],
+            options: {
+              mandatoryChoice: {
+                label: "Accompagnement",
+                choices: ["Légumes et Purée", "Frites"]
+              },
+              Jus: [
+                { name:"Jus de choix", price:20 },
                 { name:"Jus d'Orange", price:15 },
                 { name:"Jus de Citron", price:12 },
-                { name:"Panaché", price:20 },]},
+                { name:"Panaché", price:20 }
+              ]
+            }
           },
           {
             name: "Poulet Croustillant",
@@ -431,7 +440,13 @@
               { name: "Escalope (Curry)", price: 66 },
               { name: "Cordon Bleu", price: 55 },
               { name: "Tenders", price: 45 }
-            ]
+            ],
+            options: {
+              mandatoryChoice: {
+                label: "Accompagnement",
+                choices: ["Penne", "Frites"]
+              }
+            }
           },
           {
             name: "Les Pâtes Thailandaises",
@@ -568,7 +583,13 @@
               { name: "Bolognaise", price: 48 },
               { name: "Fruits de mer", price: 50 },
               { name: "Lasagnes", price: 48 }
-            ]
+            ],
+            options: {
+              mandatoryChoice: {
+                label: "Base de pâtes",
+                choices: ["Penne", "Tagliatelle"]
+              }
+            }
           },
           {
             name: "Crêpes Sucrées",
@@ -780,6 +801,22 @@ function sendWhatsAppOrder(){
       const content = $('#addToCartContent'); let html = '';
       if(item.desc){ html += `<p class="text-sm text-slate-600 mb-4">${item.desc}</p>`; }
       
+      // Mandatory choice options (e.g., pasta types, side dishes)
+      if(section.options && section.options.mandatoryChoice){
+        const choice = section.options.mandatoryChoice;
+        html += `<div class="mb-4">
+          <span class="block font-medium mb-2">${choice.label} (obligatoire):</span>
+          <div class="grid grid-cols-2 gap-2">`;
+        choice.choices.forEach((opt, idx)=>{
+          const id = `mandatory_choice_${idx}`;
+          html += `<label for="${id}" class="flex items-center gap-2 border rounded-lg p-2 hover:bg-amber-50 cursor-pointer">
+            <input id="${id}" type="radio" name="mandatory_choice" value="${opt}" required>
+            <span>${opt}</span>
+          </label>`;
+        });
+        html += `</div></div>`;
+      }
+      
       // Tacos supplements
       if(section.options && section.options.supplements){
         html += `<div class="mb-4"><span class="block font-medium mb-2">${t('supplements')}:</span>`;
@@ -792,14 +829,43 @@ function sendWhatsAppOrder(){
         html += `</div>`;
       }
       
+      // Upsell sections
+      html += renderUpsellSections();
+      
       content.innerHTML = html;
     }
 
     // Add to cart with validations
     function addToCart(){
       if(!currentItem) return;
+      
+      // Check for mandatory choice validation
+      const section = currentItem._sectionRef;
+      if(section.options && section.options.mandatoryChoice){
+        const selectedChoice = document.querySelector('input[name="mandatory_choice"]:checked');
+        if(!selectedChoice){
+          const choiceLabel = section.options.mandatoryChoice.label.toLowerCase();
+          if(section.name === "Les Pâtes"){
+            alert('Veuillez sélectionner votre base de pâtes.');
+          } else if(section.name === "Plats"){
+            alert('Veuillez sélectionner votre accompagnement.');
+          } else if(section.name === "Poulet Croustillant"){
+            alert('Veuillez sélectionner votre accompagnement.');
+          } else {
+            alert(`Veuillez sélectionner ${choiceLabel}.`);
+          }
+          return;
+        }
+      }
+      
       const selectedOptions = {}; 
       let basePrice = currentItem.price || 0;
+
+      // Mandatory choice option
+      const mandatoryChoiceInput = document.querySelector('input[name="mandatory_choice"]:checked');
+      if(mandatoryChoiceInput && section.options && section.options.mandatoryChoice){
+        selectedOptions[section.options.mandatoryChoice.label] = mandatoryChoiceInput.value;
+      }
 
       // Supplements add-on
       const supInputs = Array.from(document.querySelectorAll('input[name="supplements"]:checked'));
@@ -815,6 +881,79 @@ function sendWhatsAppOrder(){
       }
       saveCart(); closeAddToCart();
       showToast('Ajouté avec succès', 'ok');
+    }
+
+    // Render upsell sections (desserts and juices)
+    function renderUpsellSections(){
+      let html = '';
+      
+      // Dessert upsell section
+      const dessertSection = DATA.menu.sections.find(s => s.name === 'Dessert');
+      if(dessertSection && dessertSection.items){
+        html += `<div class="border-t pt-4 mt-4">
+          <h5 class="font-semibold mb-3 text-green-700">Ajouter un dessert ?</h5>
+          <div class="space-y-2">`;
+        dessertSection.items.slice(0, 2).forEach((dessert, idx) => { // Only show first 2 desserts
+          const escapedName = dessert.name.replace(/'/g, "\\'");
+          html += `<div class="flex items-center justify-between bg-gray-50 p-2 rounded-lg">
+            <span class="text-sm">${dessert.name}</span>
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium">${money(dessert.price)}</span>
+              <button type="button" onclick="addUpsellItem('${escapedName}', ${dessert.price}, 'Dessert')" 
+                class="px-3 py-1 text-xs bg-green-600 text-white rounded-md hover:bg-green-700">
+                Ajouter
+              </button>
+            </div>
+          </div>`;
+        });
+        html += `</div></div>`;
+      }
+      
+      // Jus upsell section
+      const jusSection = DATA.menu.sections.find(s => s.name === 'Jus');
+      if(jusSection && jusSection.items){
+        html += `<div class="border-t pt-4 mt-4">
+          <h5 class="font-semibold mb-3 text-blue-700">Ajouter un jus ?</h5>
+          <div class="space-y-2">`;
+        jusSection.items.forEach((jus, idx) => {
+          const escapedName = jus.name.replace(/'/g, "\\'");
+          html += `<div class="flex items-center justify-between bg-gray-50 p-2 rounded-lg">
+            <span class="text-sm">${jus.name}</span>
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium">${money(jus.price)}</span>
+              <button type="button" onclick="addUpsellItem('${escapedName}', ${jus.price}, 'Jus')" 
+                class="px-3 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                Ajouter
+              </button>
+            </div>
+          </div>`;
+        });
+        html += `</div></div>`;
+      }
+      
+      return html;
+    }
+
+    // Add upsell item directly to cart
+    function addUpsellItem(itemName, price, category){
+      const upsellItem = {
+        cartId: `${category}-${itemName}`,
+        name: itemName,
+        section: category,
+        price: price,
+        quantity: 1,
+        selectedOptions: {}
+      };
+      
+      const existingIndex = cart.findIndex(it => it.cartId === upsellItem.cartId);
+      if(existingIndex >= 0){
+        cart[existingIndex].quantity += 1;
+      } else {
+        cart.push(upsellItem);
+      }
+      
+      saveCart();
+      showToast(`${itemName} ajouté avec succès`, 'ok');
     }
 
     // ====== Image helpers (use IMAGE_CFG and item.image override) ======
