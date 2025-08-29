@@ -621,6 +621,7 @@
     try { cart = JSON.parse(localStorage.getItem('qaouti_cart') || '[]'); } catch(e){ cart = []; }
     let currentItem = null;
     let currentQuantity = 1;
+    let upsellCounters = {}; // Track counts for upsell items
 
     // i18n
     function t(key){ return (DATA.ui[LANG] && DATA.ui[LANG][key]) || (DATA.ui['fr'] && DATA.ui['fr'][key]) || key; }
@@ -767,6 +768,7 @@ function sendWhatsAppOrder(){
     function openAddToCart(item, section){
       currentItem = { ...item, section: section.name, _sectionRef: section };
       currentQuantity = 1;
+      upsellCounters = {}; // Reset upsell counters when modal opens
       $('#addToCartTitle').textContent = item.name;
       $('#quantity').textContent = currentQuantity;
       renderAddToCartOptions(item, section);
@@ -791,8 +793,98 @@ function sendWhatsAppOrder(){
         });
         html += `</div>`;
       }
+
+      // Upsell suggestions for desserts and juices
+      const upsellItems = getUpsellItems();
+      if(upsellItems.length > 0){
+        html += `<div class="mb-4"><span class="block font-medium mb-2">Suggestions:</span>`;
+        html += `<div class="grid grid-cols-2 gap-3">`;
+        upsellItems.forEach((upsellItem, idx)=>{
+          const upsellKey = `${upsellItem.section}-${upsellItem.name}`;
+          const count = upsellCounters[upsellKey] || 0;
+          html += `
+            <div class="text-center">
+              <div class="border rounded-lg p-3 mb-2">
+                <div class="text-sm font-medium">${upsellItem.name}</div>
+                <div class="text-xs text-slate-500 mb-2">${money(upsellItem.price)}</div>
+                <button type="button" onclick="addUpsellItem('${upsellKey}', '${upsellItem.name}', '${upsellItem.section}', ${upsellItem.price})" 
+                        class="w-8 h-8 rounded-full bg-[color:var(--primary)] text-[color:var(--primary-ink)] font-bold flex items-center justify-center">+</button>
+              </div>
+              <div id="counter-${upsellKey}" class="text-sm font-medium text-slate-700 ${count === 0 ? 'hidden' : ''}">${count === 0 ? '' : count}</div>
+            </div>
+          `;
+        });
+        html += `</div></div>`;
+      }
       
       content.innerHTML = html;
+    }
+
+    // Get upsell items from dessert and juice sections
+    function getUpsellItems(){
+      const upsellItems = [];
+      const sections = DATA.menu.sections;
+      
+      // Find dessert section
+      const dessertSection = sections.find(s => s.name === "Dessert");
+      if(dessertSection && dessertSection.items){
+        // Take first 2 dessert items
+        dessertSection.items.slice(0, 2).forEach(item => {
+          upsellItems.push({
+            name: item.name,
+            price: item.price,
+            section: "Dessert"
+          });
+        });
+      }
+      
+      // Find juice section
+      const juiceSection = sections.find(s => s.name === "Jus");
+      if(juiceSection && juiceSection.items){
+        // Take first 2 juice items
+        juiceSection.items.slice(0, 2).forEach(item => {
+          upsellItems.push({
+            name: item.name,
+            price: item.price,
+            section: "Jus"
+          });
+        });
+      }
+      
+      return upsellItems;
+    }
+
+    // Add upsell item to cart and update counter
+    function addUpsellItem(upsellKey, itemName, sectionName, price){
+      // Increment counter
+      upsellCounters[upsellKey] = (upsellCounters[upsellKey] || 0) + 1;
+      
+      // Update counter display
+      const counterEl = document.getElementById(`counter-${upsellKey}`);
+      if(counterEl){
+        counterEl.textContent = upsellCounters[upsellKey];
+        counterEl.classList.remove('hidden');
+      }
+      
+      // Add to cart
+      const cartId = generateCartId({name: itemName}, {name: sectionName});
+      const existingIndex = cart.findIndex(it => it.cartId === cartId);
+      if(existingIndex >= 0){
+        cart[existingIndex].quantity += 1;
+      } else {
+        cart.push({
+          cartId,
+          name: itemName,
+          section: sectionName,
+          price: price,
+          quantity: 1,
+          selectedOptions: {}
+        });
+      }
+      
+      saveCart();
+      updateCartUI();
+      showToast(`${itemName} ajouté`, 'ok');
     }
 
     // Add to cart with validations
