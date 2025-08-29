@@ -560,6 +560,83 @@
 
     function generateCartId(item, section){ return `${section.name}-${item.name}-${JSON.stringify(item.selectedOptions || {})}`; }
 
+    // Helper functions for quantity controls
+    function getItemQuantityInCart(item, section) {
+      const cartId = generateCartId(item, { name: section.name });
+      const existingItem = cart.find(it => it.cartId === cartId && JSON.stringify(it.selectedOptions || {}) === JSON.stringify({}));
+      return existingItem ? existingItem.quantity : 0;
+    }
+
+    function isSimpleItem(item, section) {
+      // Check if item has no complex options that require modal
+      const hasVariants = Array.isArray(item.variants) && item.variants.length > 0;
+      const hasPrices = item.prices && Object.keys(item.prices).length > 0;
+      const hasOptions = (Array.isArray(item.options) && item.options.length > 0) || item.optionsFrom;
+      const hasSupplements = section.options && section.options.supplements;
+      
+      return !hasVariants && !hasPrices && !hasOptions && !hasSupplements;
+    }
+
+    function addSimpleItemToCart(item, section, quantity = 1) {
+      const cartId = generateCartId(item, { name: section.name });
+      const basePrice = item.price || 0;
+      const selectedOptions = {};
+      
+      const existingIndex = cart.findIndex(it => it.cartId === cartId && JSON.stringify(it.selectedOptions) === JSON.stringify(selectedOptions));
+      if (existingIndex >= 0) {
+        cart[existingIndex].quantity += quantity;
+      } else {
+        cart.push({ 
+          cartId, 
+          name: item.name, 
+          section: section.name, 
+          price: basePrice, 
+          quantity: quantity, 
+          selectedOptions 
+        });
+      }
+      saveCart();
+      showToast('Ajouté avec succès', 'ok');
+    }
+
+    function updateSimpleItemQuantity(item, section, newQuantity) {
+      const cartId = generateCartId(item, { name: section.name });
+      const selectedOptions = {};
+      
+      const existingIndex = cart.findIndex(it => it.cartId === cartId && JSON.stringify(it.selectedOptions) === JSON.stringify(selectedOptions));
+      
+      if (newQuantity <= 0) {
+        if (existingIndex >= 0) {
+          cart.splice(existingIndex, 1);
+          saveCart();
+          showToast('Supprimé avec succès', 'del');
+        }
+      } else {
+        if (existingIndex >= 0) {
+          cart[existingIndex].quantity = newQuantity;
+          saveCart();
+        }
+      }
+    }
+
+    function createQuantityControls(item, section) {
+      const currentQty = getItemQuantityInCart(item, section);
+      const itemData = btoa(JSON.stringify({item, section: {name: section.name}}));
+      
+      if (currentQty === 0) {
+        return `<button type="button" data-action="add" data-item="${itemData}" 
+                class="w-8 h-8 rounded-full border bg-[color:var(--primary)] text-[color:var(--primary-ink)] flex items-center justify-center font-semibold">+</button>`;
+      } else {
+        return `<div class="flex items-center gap-2">
+          <button type="button" data-action="decrease" data-item="${itemData}" data-qty="${currentQty}" 
+                  class="w-8 h-8 rounded-full border flex items-center justify-center">-</button>
+          <span class="font-semibold">${currentQty}</span>
+          <button type="button" data-action="increase" data-item="${itemData}" data-qty="${currentQty}" 
+                  class="w-8 h-8 rounded-full border flex items-center justify-center">+</button>
+        </div>`;
+      }
+    }
+
     function openCart(){ renderCart(); $('#cartModal').showModal(); $('#cartModal').focus(); }
     function closeCart(){ $('#cartModal').close(); }
 
@@ -938,16 +1015,29 @@
         const div = document.createElement('div');
         // made the card wider to complement bigger images
         div.className = 'min-w-[300px] border bg-white rounded-2xl p-4 shadow-soft';
-        div.innerHTML = `
-          ${menuImageTag(it, tacos.name, it.name)}
-          <div class="text-sm text-slate-500 mb-1">${tacos.name}</div>
-          <div class="font-semibold">${it.name}</div>
-          <div class="mt-2 flex gap-2 flex-wrap text-xs">
-            ${Object.entries(it.prices||{}).map(([k,v])=>`<span class='px-2 py-1 bg-slate-100 rounded-full border'>${k}: ${money(v)}</span>`).join('')}
-          </div>
-          <button type="button" class='mt-3 px-3 py-1.5 rounded-lg bg-[color:var(--primary)] text-[color:var(--primary-ink)] text-sm font-semibold ring-soft'
-                  data-i18n='add_to_cart'>${t('add_to_cart')}</button>`;
-        div.querySelector('button').addEventListener('click', ()=> openAddToCart(it, tacos));
+        
+        if (isSimpleItem(it, tacos)) {
+          div.innerHTML = `
+            ${menuImageTag(it, tacos.name, it.name)}
+            <div class="text-sm text-slate-500 mb-1">${tacos.name}</div>
+            <div class="font-semibold">${it.name}</div>
+            <div class="mt-2 flex gap-2 flex-wrap text-xs">
+              ${Object.entries(it.prices||{}).map(([k,v])=>`<span class='px-2 py-1 bg-slate-100 rounded-full border'>${k}: ${money(v)}</span>`).join('')}
+            </div>
+            <div class="mt-3 flex justify-center">${createQuantityControls(it, tacos)}</div>`;
+        } else {
+          div.innerHTML = `
+            ${menuImageTag(it, tacos.name, it.name)}
+            <div class="text-sm text-slate-500 mb-1">${tacos.name}</div>
+            <div class="font-semibold">${it.name}</div>
+            <div class="mt-2 flex gap-2 flex-wrap text-xs">
+              ${Object.entries(it.prices||{}).map(([k,v])=>`<span class='px-2 py-1 bg-slate-100 rounded-full border'>${k}: ${money(v)}</span>`).join('')}
+            </div>
+            <button type="button" class='mt-3 px-3 py-1.5 rounded-lg bg-[color:var(--primary)] text-[color:var(--primary-ink)] text-sm font-semibold ring-soft'
+                    data-i18n='add_to_cart'>${t('add_to_cart')}</button>`;
+          div.querySelector('button').addEventListener('click', ()=> openAddToCart(it, tacos));
+        }
+        
         wrap.appendChild(div);
       });
     }
@@ -1004,13 +1094,21 @@
       } else if(item.price!=null){ 
         price.textContent = money(item.price); 
       }
-      const ctas = document.createElement('div'); ctas.className='mt-3 flex gap-2';
-      const addBtn = document.createElement('button');
-      addBtn.type = "button";
-      addBtn.className = 'px-3 py-1.5 rounded-lg bg-[color:var(--primary)] text-[color:var(--primary-ink)] text-sm font-semibold ring-soft';
-      addBtn.textContent = t('add_to_cart');
-      addBtn.onclick = () => openAddToCart(item, section);
-      ctas.appendChild(addBtn);
+      
+      const ctas = document.createElement('div'); 
+      ctas.className='mt-3 flex justify-center';
+      
+      if (isSimpleItem(item, section)) {
+        ctas.innerHTML = createQuantityControls(item, section);
+      } else {
+        const addBtn = document.createElement('button');
+        addBtn.type = "button";
+        addBtn.className = 'px-3 py-1.5 rounded-lg bg-[color:var(--primary)] text-[color:var(--primary-ink)] text-sm font-semibold ring-soft';
+        addBtn.textContent = t('add_to_cart');
+        addBtn.onclick = () => openAddToCart(item, section);
+        ctas.appendChild(addBtn);
+      }
+      
       card.append(imgWrap, title, desc, price, ctas);
       return card;
     }
@@ -1128,6 +1226,34 @@
       $('#contactGlovo').addEventListener('click', openGlovoChooser);
       $('#heroCallBtn').addEventListener('click', () => toggleChooser('callChooser'));
       $('#heroWhatsAppBtn').addEventListener('click', () => toggleChooser('waChooser'));
+      
+      // Event delegation for quantity controls
+      document.addEventListener('click', (e) => {
+        if (e.target.hasAttribute('data-action')) {
+          const action = e.target.getAttribute('data-action');
+          const itemData = e.target.getAttribute('data-item');
+          const qty = parseInt(e.target.getAttribute('data-qty')) || 0;
+          
+          try {
+            const data = JSON.parse(atob(itemData));
+            const {item, section} = data;
+            
+            if (action === 'add') {
+              addSimpleItemToCart(item, section, 1);
+              renderAll();
+            } else if (action === 'increase') {
+              updateSimpleItemQuantity(item, section, qty + 1);
+              renderAll();
+            } else if (action === 'decrease') {
+              updateSimpleItemQuantity(item, section, qty - 1);
+              renderAll();
+            }
+          } catch (err) {
+            console.error('Error handling quantity control:', err);
+          }
+        }
+      });
+      
       renderAll(); injectJSONLD();
     });
   </script>
