@@ -422,7 +422,9 @@
             ],options: {Jus:[{ name:"Jus de choix", price:20 },
                 { name:"Jus d'Orange", price:15 },
                 { name:"Jus de Citron", price:12 },
-                { name:"Panaché", price:20 },]},
+                { name:"Panaché", price:20 },],
+              Dessert:[{ name:"Tiramisu", price:20 },
+                { name:"Cheesecake", price:20 }]},
           },
           {
             name: "Poulet Croustillant",
@@ -775,6 +777,19 @@ function sendWhatsAppOrder(){
     function closeAddToCart(){ $('#addToCartModal').close(); currentItem = null; }
     function increaseQuantity(){ currentQuantity++; $('#quantity').textContent = currentQuantity; }
     function decreaseQuantity(){ if(currentQuantity>1){ currentQuantity--; $('#quantity').textContent = currentQuantity; } }
+    
+    // Handle suggestion quantity updates
+    function updateSuggestionQuantity(suggestionId, change) {
+      const input = document.getElementById(suggestionId);
+      const qtySpan = document.getElementById(suggestionId + '_qty');
+      if (!input || !qtySpan) return;
+      
+      let currentQty = parseInt(input.dataset.quantity || '0');
+      currentQty = Math.max(0, currentQty + change);
+      
+      input.dataset.quantity = currentQty;
+      qtySpan.textContent = currentQty;
+    }
 
     function renderAddToCartOptions(item, section){
       const content = $('#addToCartContent'); let html = '';
@@ -791,6 +806,57 @@ function sendWhatsAppOrder(){
         });
         html += `</div>`;
       }
+
+      // Suggestions (Jus and Dessert) - only show if main item is NOT from Dessert or Jus categories
+      if(section.name !== 'Dessert' && section.name !== 'Jus' && section.options){
+        // Jus suggestions with quantity controls
+        if(section.options.Jus && Array.isArray(section.options.Jus) && section.options.Jus.length){
+          html += `<div class="mb-4">
+            <span class="block font-medium mb-2">Suggestions Jus:</span>
+            <div class="space-y-2">`;
+          section.options.Jus.forEach((jus, idx) => {
+            const id = `jus_suggestion_${idx}`;
+            html += `
+              <div class="flex items-center justify-between border rounded-lg p-3 bg-amber-50">
+                <div class="flex-1">
+                  <span class="font-medium">${jus.name}</span>
+                  <span class="text-sm text-slate-600 ml-2">+${money(jus.price)}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="updateSuggestionQuantity('${id}', -1)" class="w-8 h-8 rounded-full border flex items-center justify-center hover:bg-white">-</button>
+                  <span id="${id}_qty" class="w-8 text-center font-semibold">0</span>
+                  <button type="button" onclick="updateSuggestionQuantity('${id}', 1)" class="w-8 h-8 rounded-full border flex items-center justify-center hover:bg-white">+</button>
+                </div>
+                <input type="hidden" id="${id}" name="jus_suggestions" value="${jus.name}" data-price="${jus.price}" data-quantity="0">
+              </div>`;
+          });
+          html += `</div></div>`;
+        }
+
+        // Dessert suggestions with quantity controls  
+        if(section.options.Dessert && Array.isArray(section.options.Dessert) && section.options.Dessert.length){
+          html += `<div class="mb-4">
+            <span class="block font-medium mb-2">Suggestions Dessert:</span>
+            <div class="space-y-2">`;
+          section.options.Dessert.forEach((dessert, idx) => {
+            const id = `dessert_suggestion_${idx}`;
+            html += `
+              <div class="flex items-center justify-between border rounded-lg p-3 bg-amber-50">
+                <div class="flex-1">
+                  <span class="font-medium">${dessert.name}</span>
+                  <span class="text-sm text-slate-600 ml-2">+${money(dessert.price)}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="updateSuggestionQuantity('${id}', -1)" class="w-8 h-8 rounded-full border flex items-center justify-center hover:bg-white">-</button>
+                  <span id="${id}_qty" class="w-8 text-center font-semibold">0</span>
+                  <button type="button" onclick="updateSuggestionQuantity('${id}', 1)" class="w-8 h-8 rounded-full border flex items-center justify-center hover:bg-white">+</button>
+                </div>
+                <input type="hidden" id="${id}" name="dessert_suggestions" value="${dessert.name}" data-price="${dessert.price}" data-quantity="0">
+              </div>`;
+          });
+          html += `</div></div>`;
+        }
+      }
       
       content.innerHTML = html;
     }
@@ -806,6 +872,42 @@ function sendWhatsAppOrder(){
       if(supInputs.length){ 
         selectedOptions['Suppléments'] = supInputs.map(i=>i.value); 
         supInputs.forEach(i=> basePrice += parseFloat(i.dataset.price||0)); 
+      }
+
+      // Jus suggestions
+      const jusSuggestionInputs = Array.from(document.querySelectorAll('input[name="jus_suggestions"]'));
+      const selectedJusSuggestions = [];
+      jusSuggestionInputs.forEach(input => {
+        const qty = parseInt(input.dataset.quantity || '0');
+        if (qty > 0) {
+          selectedJusSuggestions.push({
+            name: input.value,
+            quantity: qty,
+            price: parseFloat(input.dataset.price || '0')
+          });
+          basePrice += parseFloat(input.dataset.price || '0') * qty;
+        }
+      });
+      if (selectedJusSuggestions.length) {
+        selectedOptions['Jus'] = selectedJusSuggestions;
+      }
+
+      // Dessert suggestions
+      const dessertSuggestionInputs = Array.from(document.querySelectorAll('input[name="dessert_suggestions"]'));
+      const selectedDessertSuggestions = [];
+      dessertSuggestionInputs.forEach(input => {
+        const qty = parseInt(input.dataset.quantity || '0');
+        if (qty > 0) {
+          selectedDessertSuggestions.push({
+            name: input.value,
+            quantity: qty,
+            price: parseFloat(input.dataset.price || '0')
+          });
+          basePrice += parseFloat(input.dataset.price || '0') * qty;
+        }
+      });
+      if (selectedDessertSuggestions.length) {
+        selectedOptions['Dessert'] = selectedDessertSuggestions;
       }
 
       const cartId = generateCartId(currentItem, { name: currentItem.section });
