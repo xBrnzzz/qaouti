@@ -621,6 +621,7 @@
     try { cart = JSON.parse(localStorage.getItem('qaouti_cart') || '[]'); } catch(e){ cart = []; }
     let currentItem = null;
     let currentQuantity = 1;
+    let upsellQuantities = {}; // Track quantities for upsell items
 
     // i18n
     function t(key){ return (DATA.ui[LANG] && DATA.ui[LANG][key]) || (DATA.ui['fr'] && DATA.ui['fr'][key]) || key; }
@@ -767,14 +768,29 @@ function sendWhatsAppOrder(){
     function openAddToCart(item, section){
       currentItem = { ...item, section: section.name, _sectionRef: section };
       currentQuantity = 1;
+      upsellQuantities = {}; // Reset upsell quantities
       $('#addToCartTitle').textContent = item.name;
       $('#quantity').textContent = currentQuantity;
       renderAddToCartOptions(item, section);
       $('#addToCartModal').showModal();
     }
-    function closeAddToCart(){ $('#addToCartModal').close(); currentItem = null; }
+    function closeAddToCart(){ $('#addToCartModal').close(); currentItem = null; upsellQuantities = {}; }
     function increaseQuantity(){ currentQuantity++; $('#quantity').textContent = currentQuantity; }
     function decreaseQuantity(){ if(currentQuantity>1){ currentQuantity--; $('#quantity').textContent = currentQuantity; } }
+
+    // Upsell quantity control functions
+    function increaseUpsellQuantity(section, index) {
+      const key = `${section}_${index}`;
+      upsellQuantities[key] = (upsellQuantities[key] || 0) + 1;
+      document.getElementById(`upsell_qty_${key}`).textContent = upsellQuantities[key];
+    }
+    function decreaseUpsellQuantity(section, index) {
+      const key = `${section}_${index}`;
+      if (upsellQuantities[key] > 0) {
+        upsellQuantities[key]--;
+        document.getElementById(`upsell_qty_${key}`).textContent = upsellQuantities[key];
+      }
+    }
 
     function renderAddToCartOptions(item, section){
       const content = $('#addToCartContent'); let html = '';
@@ -812,37 +828,45 @@ function sendWhatsAppOrder(){
       const dessertSection = DATA.menu.sections.find(s => s.name === "Dessert");
       const juiceSection = DATA.menu.sections.find(s => s.name === "Jus");
       
-      if(dessertSection){
+      // Only show dessert suggestions if current item is NOT from Dessert section
+      if(dessertSection && currentItem.section !== "Dessert"){
         html += `<div class="mb-4 border-t pt-4">
           <span class="block font-medium mb-2">Ajouter un dessert ?</span>
           <div class="grid grid-cols-1 gap-2">`;
         dessertSection.items.forEach((dessert, idx)=>{
-          const upsellId = `upsell_dessert_${idx}`;
+          const key = `dessert_${idx}`;
           const safeName = dessert.name.replace(/'/g, "\\'");
           html += `<div class="flex items-center justify-between border rounded-lg p-2 hover:bg-green-50">
             <span class="text-sm">${dessert.name} - ${money(dessert.price)}</span>
-            <button type="button" onclick="addUpsellItem('${safeName}', ${dessert.price}, 'Dessert', '${upsellId}')" 
-                    class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700" id="${upsellId}">
-              Ajouter
-            </button>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="decreaseUpsellQuantity('dessert', ${idx})" 
+                      class="w-6 h-6 rounded-full border flex items-center justify-center text-sm hover:bg-gray-100">-</button>
+              <span id="upsell_qty_${key}" class="w-8 text-center text-sm font-medium">0</span>
+              <button type="button" onclick="increaseUpsellQuantity('dessert', ${idx})" 
+                      class="w-6 h-6 rounded-full border flex items-center justify-center text-sm hover:bg-gray-100">+</button>
+            </div>
           </div>`;
         });
         html += `</div></div>`;
       }
       
-      if(juiceSection){
+      // Only show juice suggestions if current item is NOT from Jus section
+      if(juiceSection && currentItem.section !== "Jus"){
         html += `<div class="mb-4 border-t pt-4">
           <span class="block font-medium mb-2">Ajouter un jus ?</span>
           <div class="grid grid-cols-1 gap-2">`;
         juiceSection.items.forEach((juice, idx)=>{
-          const upsellId = `upsell_juice_${idx}`;
+          const key = `juice_${idx}`;
           const safeName = juice.name.replace(/'/g, "\\'");
           html += `<div class="flex items-center justify-between border rounded-lg p-2 hover:bg-green-50">
             <span class="text-sm">${juice.name} - ${money(juice.price)}</span>
-            <button type="button" onclick="addUpsellItem('${safeName}', ${juice.price}, 'Jus', '${upsellId}')" 
-                    class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700" id="${upsellId}">
-              Ajouter
-            </button>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="decreaseUpsellQuantity('juice', ${idx})" 
+                      class="w-6 h-6 rounded-full border flex items-center justify-center text-sm hover:bg-gray-100">-</button>
+              <span id="upsell_qty_${key}" class="w-8 text-center text-sm font-medium">0</span>
+              <button type="button" onclick="increaseUpsellQuantity('juice', ${idx})" 
+                      class="w-6 h-6 rounded-full border flex items-center justify-center text-sm hover:bg-gray-100">+</button>
+            </div>
           </div>`;
         });
         html += `</div></div>`;
@@ -879,42 +903,50 @@ function sendWhatsAppOrder(){
       if(existingIndex>=0){ cart[existingIndex].quantity += currentQuantity; } else {
         cart.push({ cartId, name: currentItem.name, section: currentItem.section, price: basePrice, quantity: currentQuantity, selectedOptions });
       }
+
+      // Process upsell items
+      const dessertSection = DATA.menu.sections.find(s => s.name === "Dessert");
+      const juiceSection = DATA.menu.sections.find(s => s.name === "Jus");
+      
+      Object.keys(upsellQuantities).forEach(key => {
+        const quantity = upsellQuantities[key];
+        if (quantity > 0) {
+          const [section, indexStr] = key.split('_');
+          const index = parseInt(indexStr);
+          
+          let item, sectionName;
+          if (section === 'dessert' && dessertSection) {
+            item = dessertSection.items[index];
+            sectionName = 'Dessert';
+          } else if (section === 'juice' && juiceSection) {
+            item = juiceSection.items[index];
+            sectionName = 'Jus';
+          }
+          
+          if (item) {
+            const upsellCartId = generateCartId({ name: item.name }, { name: sectionName });
+            const existingUpsellIndex = cart.findIndex(it => it.cartId === upsellCartId);
+            if (existingUpsellIndex >= 0) {
+              cart[existingUpsellIndex].quantity += quantity;
+            } else {
+              cart.push({
+                cartId: upsellCartId,
+                name: item.name,
+                section: sectionName,
+                price: item.price,
+                quantity: quantity,
+                selectedOptions: {}
+              });
+            }
+          }
+        }
+      });
+
       saveCart(); closeAddToCart();
       showToast('Ajouté avec succès', 'ok');
     }
 
-    // Upsell functionality
-    function addUpsellItem(itemName, itemPrice, itemSection, buttonId) {
-      const cartId = generateCartId({ name: itemName }, { name: itemSection });
-      const existingIndex = cart.findIndex(it => it.cartId === cartId);
-      if(existingIndex >= 0) {
-        cart[existingIndex].quantity += 1;
-      } else {
-        cart.push({ 
-          cartId, 
-          name: itemName, 
-          section: itemSection, 
-          price: itemPrice, 
-          quantity: 1, 
-          selectedOptions: {} 
-        });
-      }
-      saveCart();
-      
-      // Visual feedback
-      const button = document.getElementById(buttonId);
-      if(button) {
-        const originalText = button.textContent;
-        button.textContent = '✓ Ajouté';
-        button.style.backgroundColor = '#16a34a';
-        setTimeout(() => {
-          button.textContent = originalText;
-          button.style.backgroundColor = '';
-        }, 1000);
-      }
-      
-      showToast(`${itemName} ajouté au panier`, 'ok');
-    }
+
 
     // ====== Image helpers (use IMAGE_CFG and item.image override) ======
     function menuImageTag(item, sectionName, altText){
