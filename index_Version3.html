@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Yallah Naklou – Édition Clair (Panier + WhatsApp)</title>
+  <meta name="description" content="Yallah Naklou – French Tacos, Grillades, Burgers, Tex‑Mex. Deux adresses à Fès. Commande WhatsApp et panier." />
+  <meta property="og:title" content="Yallah Naklou – Édition Clair" />
+  <meta property="og:description" content="Deux adresses à Fès. Commande via WhatsApp, téléphone, ou sur place. Halal." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_MA" />
+  <link rel="icon" href="/favicon.ico" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .no-scrollbar::-webkit-scrollbar { display: none; } .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    :root{
+      --bg:#ffe089;
+      --surface:#FFFFFF;
+      --ink:#2a0f0f;
+      --muted:#64748B;
+      --primary:#FBC73A;
+      --primary-ink:#7A5A00;
+      --ok:#16A34A;
+      --warn:#EF4444;
+      --ring:#E2E8F0;
+    }
+    body{ background:var(--bg); color:var(--ink); }
+    @media (prefers-reduced-motion: no-preference){
+      .cart-bounce{ animation: cartBounce .5s ease; }
+      @keyframes cartBounce { 0%,100%{transform:translateY(0)} 40%{transform:translateY(-8px)} 60%{transform:translateY(-4px)} }
+      .toast.hide{ animation: fadeOut .25s forwards; }
+      @keyframes fadeOut { to{ opacity:0; transform:translate(-50%, 8px);} }
+    }
+    .toast{ position:fixed; left:50%; bottom:24px; transform:translateX(-50%); z-index:80; background:#fff; border:1px solid var(--ring); box-shadow:0 8px 30px rgba(0,0,0,.08); padding:10px 14px; border-radius:12px; display:flex; align-items:center; gap:8px; font-weight:600; }
+    .chip{ display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; border:1px solid var(--ring); background:#fff; font-size:12px; }
+    .shadow-soft{ box-shadow:0 1px 2px rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.05); }
+    .ring-soft{ box-shadow: inset 0 0 0 1px var(--ring); }
+    #heroLeftCard{ background:var(--primary); color:var(--primary-ink); }
+    #locations{ background:#7b7b7b; color:#fff; }
+    #locations a, #locations button{ color:#ffffff; }
+    #contact{ background:linear-gradient(180deg, #232323 0%, #1a1a1a 100%); color:#fff; }
+    #floatingCartBtn{
+      position:fixed; right:16px; bottom:16px; z-index:70;
+      background:var(--primary); color:var(--primary-ink);
+      border-radius:999px; padding:12px 16px; box-shadow:0 8px 30px rgba(0,0,0,.15);
+      display:flex; align-items:center; gap:8px; font-weight:700;
+    }
+    #floatingCartBtn.hidden{ display:none; }
+    .trap-start, .trap-end { width:0; height:0; overflow:hidden; position:fixed; }
+
+    /* Bigger images like the Quickly file */
+    .card-img{
+      width:100%;
+      height:220px;              /* was 160px */
+      object-fit:cover;
+      object-position:center;
+      border-radius:16px;        /* a bit rounder */
+      margin-bottom:12px;
+      box-shadow:0 1px 2px rgba(0,0,0,.04);
+      border:1px solid var(--ring);
+      background:#fff;
+    }
+    @media (min-width:768px){
+      .card-img{ height:300px; } /* make them larger on desktop */
+    }
+  </style>
+</head>
+<body class="text-slate-800">
+  <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:z-50 focus:top-2 focus:left-2 bg-black text-white px-3 py-2 rounded">Aller au contenu</a>
+
+  <header class="sticky top-0 z-30 bg-[color:#fad264] ">
+    <div class="max-w-6xl mx-auto flex items-center justify-between px-4 py-3">
+      <div class="flex items-center gap-3">
+        <img id="brandLogo" src="assets/logo.png" alt="Yallah Naklou" class="h-10 w-10 rounded-lg ring-1 ring-slate-200 object-contain" onerror="this.style.display='none'"/>
+        <div class="leading-tight">
+          <h1 class="text-xl font-extrabold tracking-tight">Yallah Naklou</h1>
+          <p id="taglineSmall" class="text-xs text-slate-500 hidden"></p>
+        </div>
+      </div>
+      <nav class="hidden md:flex items-center gap-6 text-sm">
+        <a href="#menu" class="hover:text-slate-900">Menu</a>
+        <a href="#locations" class="hover:text-slate-900">Adresses</a>
+        <div class="flex items-center gap-2">
+          <button type="button" class="px-2 py-1 text-xs rounded border border-black" onclick="setLang('fr')">FR</button>
+          <button type="button" class="px-2 py-1 text-xs rounded border border-black" onclick="setLang('en')">EN</button>
+          <button type="button" class="px-2 py-1 text-xs rounded border border-black" onclick="setLang('ar')">AR</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <section id="home" class="relative overflow-hidden">
+    <div class="absolute inset-0">
+      <img id="heroBgImage" src="assets/snack.png" alt="" class="w-full h-full object-cover opacity-20" loading="eager" decoding="async" />
+      <div class="absolute inset-0 bg-[color:#FBC73A]/80"></div>
+    </div>
+    <div class="relative">
+      <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 px-4 py-10 md:py-16">
+        <div class="flex flex-col justify-center">
+          <img id="heroLogoImage" src="assets/logoo.png" alt="Yallah Naklou" class="h-[450px] md:h-300 w-auto object-contain mx-auto" onerror="this.style.display='none'"/>
+        </div>
+        <div class="flex flex-col justify-center">
+          <h2 class="text-5xl md:text-6xl font-extrabold leading-tight">Yallah Naklou</h2>
+          <p id="tagline" class="text-lg text-slate-800 mt-2 hidden"></p>
+          <div class="mt-6 grid md:grid-cols-3 gap-3">
+            <div class="relative">
+              <button id="heroGlovo" type="button" class="h-12 w-full rounded-xl bg-[color:var(--primary)] text-[color:var(--primary-ink)] font-semibold shadow-soft flex items-center justify-center" data-i18n="order_glovo">Commander sur Glovo</button>
+            </div>
+            <div class="relative">
+              <button id="heroCallBtn" type="button" class="h-12 w-full rounded-xl bg-slate-800 text-white font-semibold shadow-soft flex items-center justify-center" data-i18n="call">Appeler</button>
+              <div id="callChooser" class="absolute z-10 mt-2 w-64 bg-white text-black rounded-xl border shadow-soft p-3 hidden">
+                <label class="block text-xs text-slate-600 mb-1" for="callSelect">Choisir le restaurant</label>
+                <select id="callSelect" class="w-full p-2 border rounded-lg">
+                  <option value="l1">Yallah Naklou - Champs de course</option>
+                  <option value="l2">Yallah Naklou - Trik Sefrou</option>
+                </select>
+                <button type="button" class="mt-2 w-full px-3 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold" onclick="confirmCall()">
+                  Appeler
+                </button>
+              </div>
+            </div>
+            <div class="relative">
+              <button id="heroWhatsAppBtn" type="button" class="h-12 w-full rounded-xl bg-emerald-600 text-white font-semibold shadow-soft flex items-center justify-center" data-i18n="whatsapp">WhatsApp</button>
+              <div id="waChooser" class="absolute z-10 mt-2 w-64 bg-white text-black rounded-xl border shadow-soft p-3 hidden">
+                <label class="block text-xs text-slate-600 mb-1" for="waSelect">Choisir le restaurant</label>
+                <select id="waSelect" class="w-full p-2 border rounded-lg">
+                  <option value="l1">Yallah Naklou - Champs de course</option>
+                  <option value="l2">Yallah Naklou - Trik Sefrou</option>
+                </select>
+                <button type="button" class="mt-2 w-full px-3 py-2 rounded-lg bg-emerald-600 text-white text-sm font-semibold" onclick="confirmWhatsApp()">
+                  Ouvrir WhatsApp
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="popular" class="py-10 md:py-12 bg-white border-y">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="flex items-end justify-between mb-4">
+        <h3 class="text-xl md:text-2xl font-bold" data-i18n="popular">Populaire</h3>
+        <a href="#menu" class="text-sm underline" data-i18n="see_menu">Voir le menu</a>
+      </div>
+      <div id="popularList" class="flex gap-4 overflow-x-auto no-scrollbar pb-2"></div>
+    </div>
+  </section>
+
+  <main id="main">
+    <section id="menu" class="py-12 md:py-16">
+      <div class="max-w-6xl mx-auto px-4">
+        <h3 class="text-2xl font-extrabold mb-4">Menu</h3>
+        <div id="menuTabs" class="flex flex-wrap gap-2 mb-6"></div>
+        <div id="menuContent" class="grid md:grid-cols-2 gap-6"></div>
+      </div>
+    </section>
+
+    <section id="locations" class="py-12 border-t">
+      <div class="max-w-6xl mx-auto px-4">
+        <h3 class="text-2xl font-extrabold mb-6">Adresses & horaires</h3>
+        <div id="locationCards" class="grid md:grid-cols-2 gap-6"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t bg-[color:#141412]">
+    <div class="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <a class="p-2 rounded-lg border bg-white shadow-soft" href="https://web.facebook.com/YallahNaklou" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 fill-[#1877F2]" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M22 12.06C22 6.477 17.523 2 11.94 2 6.357 2 1.88 6.477 1.88 12.06c0 4.99 3.657 9.128 8.438 9.88v-6.988H7.9v-2.892h2.418V9.845c0-2.39 1.423-3.71 3.6-3.71 1.042 0 2.132.186 2.132.186v2.343h-1.2c-1.183 0-1.55.734-1.55 1.486v1.786h2.64l-.422 2.892h-2.218v6.988c4.78-.752 8.437-4.89 8.437-9.88z"/>
+          </svg>
+        </a>
+        <a class="p-2 rounded-lg border bg-white shadow-soft" href="https://www.instagram.com/yallah_naklou_fez?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+            <linearGradient id="ig" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#F58529"/><stop offset="30%" stop-color="#DD2A7B"/><stop offset="60%" stop-color="#8134AF"/><stop offset="100%" stop-color="#515BD4"/>
+            </linearGradient>
+            <path fill="url(#ig)" d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a 3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zm0 2a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm5.75-.75a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5z"/>
+          </svg>
+        </a>
+      </div>
+
+      <p class="text-sm text-slate-500">© <span id="year"></span> Yallah Naklou • Fès</p>
+
+      <div class="flex flex-col md:flex-row items-center gap-3 md:gap-6">
+        <ul class="flex flex-wrap gap-2 text-xs">
+          <li class="chip">Espèces</li>
+          <li class="chip">Paiement à la livraison</li>
+          <li class="chip">Cartes de crédit</li>
+          <li class="chip">Cartes de débit</li>
+          <li class="chip">Paiements mobiles NFC</li>
+        </ul>
+      </div>
+    </div>
+    <button id="contactGlovo" type="button" class="hidden" aria-hidden="true"></button>
+  </footer>
+
+  <button id="floatingCartBtn" type="button" class="hidden" aria-label="Voir panier">
+    <span id="floatCartCount" class="inline-flex items-center justify-center w-6 h-6 text-xs font-bold bg-white rounded-full">0</span>
+    <span data-i18n="view_cart">Voir panier</span>
+    <span id="floatCartTotal" class="font-semibold"></span>
+  </button>
+
+  <dialog id="cartModal" class="backdrop:bg-black/50 rounded-2xl p-0 w-[95%] md:w-[640px] max-h-[90vh] overflow-y-auto" aria-labelledby="cartTitle" aria-describedby="cartDesc">
+    <span class="trap-start" tabindex="0"></span>
+    <div class="p-6 bg-white rounded-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h4 id="cartTitle" class="text-lg font-bold" data-i18n="cart">Panier</h4>
+        <button type="button" onclick="closeCart()" class="text-slate-500" aria-label="Fermer">✕</button>
+      </div>
+      <p id="cartDesc" class="sr-only">Contenu du panier et validation de la commande.</p>
+      <div id="cartItems" class="space-y-3 max-h-[50vh] overflow-y-auto"></div>
+      <div id="cartEmpty" class="text-center py-8 text-slate-500 hidden">
+        <p data-i18n="cart_empty">Votre panier est vide</p>
+      </div>
+      <div id="cartFooter" class="border-t pt-4 mt-4 hidden">
+        <div class="flex justify-between items-center mb-4">
+          <span class="font-bold text-lg" data-i18n="total">Total:</span>
+          <span id="cartTotal" class="font-bold text-lg">0 MAD</span>
+        </div>
+        <div class="mb-4">
+          <label for="locationSelect" class="block text-sm font-medium mb-2" data-i18n="select_location">Choisir le restaurant:</label>
+          <select id="locationSelect" class="w-full p-2 border rounded-lg">
+            <option value="l1">Yallah Naklou - Champs de course</option>
+            <option value="l2">Yallah Naklou - Trik Sefrou</option>
+          </select>
+        </div>
+
+        <!-- New service mode choice (Sur place / Livraison) -->
+        <div class="mb-4">
+          <span class="block text-sm font-medium mb-2" data-i18n="service_mode">Mode de service</span>
+          <div class="flex gap-4">
+            <label class="inline-flex items-center gap-2">
+              <input type="radio" name="serviceMode" value="Sur place">
+              <span data-i18n="dine_in">Sur place</span>
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <input type="radio" name="serviceMode" value="Livraison" checked>
+              <span data-i18n="delivery">Livraison</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex gap-2">
+          <button type="button" onclick="clearCart()" class="px-4 py-2 rounded-lg border text-sm">Vider panier</button>
+          <button type="button" onclick="sendWhatsAppOrder()" class="flex-1 px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold" data-i18n="send_order">Finaliser la commande</button>
+        </div>
+      </div>
+    </div>
+    <span class="trap-end" tabindex="0"></span>
+  </dialog>
+
+  <dialog id="addToCartModal" class="backdrop:bg-black/50 rounded-2xl p-0 w-[95%] md:w-[520px]" aria-labelledby="addToCartTitle">
+    <span class="trap-start" tabindex="0"></span>
+    <div class="p-6 bg-white rounded-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h4 id="addToCartTitle" class="text-lg font-bold"></h4>
+        <button type="button" onclick="closeAddToCart()" class="text-slate-500" aria-label="Fermer">✕</button>
+      </div>
+      <div id="addToCartContent"></div>
+      <div class="flex items-center justify-between mt-6">
+        <div class="flex items-center gap-3">
+          <button type="button" onclick="decreaseQuantity()" class="w-8 h-8 rounded-full border flex items-center justify-center">-</button>
+          <span id="quantity" class="font-semibold">1</span>
+          <button type="button" onclick="increaseQuantity()" class="w-8 h-8 rounded-full border flex items-center justify-center">+</button>
+        </div>
+        <button type="button" onclick="addToCart()" class="px-6 py-2 rounded-lg bg-[color:var(--primary)] text-[color:var(--primary-ink)] font-semibold ring-soft shadow-soft" data-i18n="add_to_cart">Ajouter au panier</button>
+      </div>
+    </div>
+    <span class="trap-end" tabindex="0"></span>
+  </dialog>
+
+  <dialog id="glovoModal" class="backdrop:bg-black/50 rounded-2xl p-0 w-[95%] md:w-[420px]" aria-labelledby="glovoTitle">
+    <div class="p-6 bg-white rounded-2xl">
+      <div class="flex items-center justify-between mb-3">
+        <h4 id="glovoTitle" class="text-lg font-bold">Choisir un restaurant</h4>
+        <button type="button" onclick="document.getElementById('glovoModal').close()" class="text-slate-500" aria-label="Fermer">✕</button>
+      </div>
+      <p class="text-sm text-slate-600 mb-4">Où souhaitez‑vous commander sur Glovo ?</p>
+      <div id="glovoChoices" class="grid gap-2"></div>
+    </div>
+  </dialog>
+
+  <div id="toastWrap"></div>
+
+  <script>
+    // Centralized image configuration (edit here to change any photo)
+    const IMAGE_CFG = {
+      brand: {
+        logo: "assets/logo.png",
+        hero_logo: "assets/logoo.png"
+      },
+      hero: {
+        bg: "assets/snack.png"
+      },
+      categories: {
+        "French Tacos":"assets/tacos.jpg",
+        "Salades":"assets/salades.jpg",
+        "Les Classiques (Wraps)":"assets/wraps.jpg",
+        "Paninis":"assets/paninis.jpg",
+        "Burgers":"assets/burgers.jpg",
+        "Los Mexicanos":"assets/mexicains.jpg",
+        "Tex-Mex":"assets/texmex.jpg",
+        "Desserts":"assets/desserts.jpg",
+        "Boissons":"assets/boissons.jpg",
+        "Extras":"assets/extras.jpg"
+      },
+      fallbacks: {
+        categories: {
+          "French Tacos":"https://french-iceberg.com/wp-content/uploads/2021/05/French-Taco-scaled.jpg.webp",
+          "Salades":"https://images.unsplash.com/photo-1540420773420-3366772f4999?q=80&w=1200&auto=format&fit=crop",
+          "Les Classiques (Wraps)":"https://tropicaleatandmore.com/wp-content/uploads/2020/09/Chicken-Tender-wrap.jpeg",
+          "Paninis":"https://i.pinimg.com/474x/90/d1/38/90d1382b8cae14b4d0bfe3a7e8551221.jpg",
+          "Burgers":"https://images.unsplash.com/photo-1550547660-d9450f859349?q=80&w=1200&auto=format&fit=crop",
+          "Los Mexicanos":"https://images.ctfassets.net/6ilzexksnph5/LFE92EbbZzwVso2X8w2tT/a0ee1009dc2e9bfe4122b1d7fb14ecb9/Spiced_Falafel_and_Vegetable_Burrito.png?w=2000&h=1500&fm=webp&fit=thumb&q=100",
+          "Tex-Mex":"https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Chicken_Nuggets.jpg/640px-Chicken_Nuggets.jpg",
+          "Desserts":"https://www.laguildeculinaire.com/cdn/shop/articles/lgc-recette-verrine-de-tiramisu-1024x640_600x600_crop_center.jpg?v=1583187754",
+          "Boissons":"https://www.beanilla.com/wp/wp-content/uploads/2022/06/RefreshingDrinks-1024x683.jpg",
+          "Extras":"https://sausagemaker.com/wp-content/uploads/Homemade-French-Fries_8.jpg"
+        },
+        location: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=1200&auto=format&fit=crop"
+      }
+    };
+
+    // ====== DATA ======
+    const DATA = {
+      brand: {
+        name: "Yallah Naklou",
+        tagline_fr: "Yallah naklou",
+        tagline_en: "Yallah Naklou",
+        tagline_ar: "يلاه ناكلو",
+        logo: "assets/logo.png"
+      },
+      languages_enabled: ["fr","en","ar"],
+      locations: [
+        {
+          id: "l1",
+          name: "Yallah Naklou - Champs de course",
+          image: "assets/cc.png",
+          address: "48 Lot du parc champ de course, Fès 30000",
+          maps_url: "https://maps.app.goo.gl/FhDt4CD7o2kck4Po8",
+          phone: "+212711664755",
+          whatsapp: "https://wa.me/212711664755",
+          glovo_url: "https://glovoapp.com/ma/fr/fes/yallah-naklou-fes/",
+          hours: { lundi: "12:00–00:30", mardi: "12:00–00:30", mercredi: "12:00–00:30", jeudi: "12:00–00:30", vendredi: "16:30–00:30", samedi: "12:00–01:00", dimanche: "12:00–01:00" }
+        },
+        {
+          id: "l2",
+          name: "Yallah Naklou - Trik Sefrou",
+          image: "assets/ts.png",
+          address: "48 Lot Almamounia, Rte de Sefrou, Fès 30060",
+          maps_url: "https://maps.app.goo.gl/Tfa2eW89qhyC5tWS9",
+          phone: "+212535960460",
+          whatsapp: "https://wa.me/212711664755",
+          glovo_url: "https://glovoapp.com/ma/fr/fes/yallah-naklou2-fessma/",
+          hours: { lundi: "13:00–00:00", mardi: "13:00–00:00", mercredi: "13:00–00:00", jeudi: "13:00–00:00", vendredi: "16:00–00:00", samedi: "13:00–00:00", dimanche: "13:00–00:00" }
+        }
+      ],
+      ui: {
+        fr: {
+          order_glovo:"Commander sur Glovo", call:"Appeler", whatsapp:"WhatsApp", see_menu:"Voir le menu",
+          directions:"Localisation", hours:"Horaires", popular:"Populaire", halal:"Halal", add_to_cart:"Ajouter au panier",
+          cart:"Panier", view_cart:"Voir panier", cart_empty:"Votre panier est vide", total:"Total", clear_cart:"Vider panier",
+          send_order:"Finaliser la commande", select_location:"Choisir le restaurant", size:"Taille", sauce:"Sauce",
+          supplements:"Suppléments", gratin:"Gratin",
+          service_mode:"Mode de service", dine_in:"Sur place", delivery:"Livraison"
+        },
+        en: {
+          order_glovo:"Order on Glovo", call:"Call", whatsapp:"WhatsApp", see_menu:"View Menu",
+          directions:"Location", hours:"Hours", popular:"Popular", halal:"Halal", add_to_cart:"Add to cart",
+          cart:"Cart", view_cart:"View cart", cart_empty:"Your cart is empty", total:"Total", clear_cart:"Clear cart",
+          send_order:"Send order", select_location:"Select restaurant", size:"Size", sauce:"Sauce",
+          supplements:"Supplements", gratin:"Gratin",
+          service_mode:"Service mode", dine_in:"Dine-in", delivery:"Delivery"
+        },
+        ar: {
+          order_glovo:"اطلب عبر غلوفو", call:"اتصال", whatsapp:"واتساب", see_menu:"عرض القائمة",
+          directions:"الموقع", hours:"ساعات العمل", popular:"الأكثر طلبًا", halal:"حلال", add_to_cart:"أضف للسلة",
+          cart:"السلة", view_cart:"عرض السلة", total:"المجموع", clear_cart:"إفراغ السلة",
+          send_order:"إرسال الطلب", select_location:"اختر المطعم", size:"الحجم", sauce:"الصلصة",
+          supplements:"الإضافات", gratin:"الجراتان",
+          service_mode:"طريقة الخدمة", dine_in:"تناول في المطعم", delivery:"توصيل"
+        }
+      },
+      menu: {
+        currency: "MAD",
+        popular_section: "French Tacos",
+        sections: [
+          {
+            name: "French Tacos",
+            notes: "Tailles: S (enfant), M (1 portion viande), L (2 portions), XL (3 portions). Sauce au choix.",
+            items: [
+              { name:"Poulet", image:"assets/tacos.png", prices:{ S:20,M:25,L:35,XL:48 }, popular:true },
+              { name:"Viande hachée", image:"assets/tacos.png", prices:{ S:22,M:27,L:37,XL:50 } },
+              { name:"Nuggets",  image:"assets/tacos.png", prices:{ S:22,M:27,L:37,XL:50 } },
+              { name:"Merguez",  image:"assets/tacos.png",prices:{ S:22,M:27,L:37,XL:50 } },
+              { name:"Cordon bleu",  image:"assets/tacos.png",prices:{ S:null,M:29,L:40,XL:55 } },
+              { name:"Poisson", image:"assets/tacos.png", prices:{ S:25,M:30,L:40,XL:55 } },
+              { name:"Mixte (2 viandes au choix)", image:"assets/tacos.png", prices:{ S:24,M:29,L:39,XL:52 }, popular:true },
+              { name:"Mixte (3 viandes au choix)",  image:"assets/tacos.png",prices:{ S:29,M:34,L:45,XL:52 } },
+              { name:"Tenders (fait maison)",  image:"assets/tacos.png", prices:{ S:22,M:27,L:37,XL:50 } }
+            ],
+            options: {
+              gratin: [
+                { name:"Cheddar & Mozzarella", add:{ S:5,M:5,L:8,XL:10 } },
+                { name:"Lardon de dinde", add:{ S:10,M:10,L:13,XL:15 } }
+              ],
+              supplements: [
+                { name:"Fromage Kiri", price:3 },
+                { name:"Fromage Cheddar", price:3 },
+                { name:"Crispy onions", price:2 },
+                { name:"Dinde fumée", price:3 },
+                { name:"Onion rings", price:3 },
+                { name:"Galette pomme de terre", price:3 },
+                { name:"Jalapeños", price:2 }
+              ],
+              sauces: ["Biggy","Blanche","Cheesy","Barbecue","Brazil","Mayonnaise","Ketchup","Magic onions","Pita","Andalouse","Ail","Fish to fish","Algérienne","Marocaine","Samouraï","Chili thai","Pili pili"]
+            }
+          },
+          { name: "Salades", items: [
+              { name:"Salade Niçoise", image:"assets/saladen.png", desc:"Laitue, riz, tomates, concombre, carotte, pommes de terre, maïs, thon, olives noires, sauce blanche.", price:30 },
+              { name:"Salade César", image:"assets/saladec.png", desc:"Laitue, tomates, croûtons, fromage, poulet.", price:30 }
+            ]},
+          { name: "Les Classiques (Wraps)", notes:"Tortilla garni de poulet mariné, laitue, tomates et fromage.", items: [
+              { name:"Tandoori (Paprika)", image:"assets/wrapt.png", price:20 },
+              { name:"Tikka (Curry)", image:"assets/wraptika.png", price:20 },
+              { name:"Tex Mex", image:"assets/wraptex.png", price:20 }
+            ]},
+          { name: "Paninis", items: [
+              { name:"Fromage",image:"assets/panini.png", price:14 },
+              { name:"Charcuterie",image:"assets/panini.png", price:17 },
+              { name:"Poulet",image:"assets/panini.png", price:17 },
+              { name:"Viande hachée",image:"assets/panini.png", price:18 },
+              { name:"Mixte",image:"assets/panini.png", price:20 },
+              { name:"Nuggets",image:"assets/panini.png", price:20 },
+              { name:"Cordon Bleu",image:"assets/panini.png", price:22 }
+            ]},
+          { name: "Burgers", items: [
+              { name:"Le Gourmet", image:"assets/burger.png", desc:"Steak VH 100g, charcuterie, crispy onions, laitue, tomate, cornichon, double cheddar, sauce BBQ.", price:35 },
+              { name:"Cheese Burger", image:"assets/burger.png", desc:"Steak VH, laitue, tomate, cornichon, cheddar.", price:15 },
+              { name:"Chicken Burger", image:"assets/burger.png", desc:"Steak poulet, laitue, tomate, cornichon, cheddar.", price:20 },
+              { name:"Double Cheese", image:"assets/burger.png", desc:"2 steaks VH, laitue, tomate, cornichon, cheddar.", price:20 },
+              { name:"Fish Burger", image:"assets/burger.png", desc:"Steak poisson, laitue, tomate, cornichon, cheddar.", price:24 },
+              { name:"Chicken Beef", image:"assets/burger.png", desc:"Steak poulet + VH, laitue, tomate, cornichon, cheddar.", price:27 },
+              { name:"Double Chicken", image:"assets/burger.png", desc:"2 steaks poulet, laitue, tomate, cornichon, cheddar.", price:32 }
+            ]},
+          { 
+            name: "Los Mexicanos", 
+            items: [
+              { name:"Burrito - Poulet", image:"assets/burrito.png", desc:"Tortilla (poulet ou VH), fromage et légumes poêlés.", price:30 },
+              { name:"Burrito - Viande hachée", image:"assets/burrito.png", desc:"Tortilla (poulet ou VH), fromage et légumes poêlés.", price:32 },
+              { name:"Burrito - Mixte", image:"assets/burrito.png", desc:"Tortilla (poulet ou VH), fromage et légumes poêlés.", price:32 },
+              { name:"Fajita - Poulet", image:"assets/fajita.png", desc:"Tortilla (poulet ou VH), poivron et fromage.", price:25 },
+              { name:"Fajita - Viande hachée", image:"assets/fajita.png", desc:"Tortilla (poulet ou VH), poivron et fromage.", price:27 },
+              { name:"Fajita - Mixte", image:"assets/fajita.png", desc:"Tortilla (poulet ou VH), poivron et fromage.", price:28 },
+              { name:"Quesadilla - Poulet", image:"assets/quesadillas.png", desc:"Tortilla (poulet ou VH) et beaucoup de fromage.", price:25 },
+              { name:"Quesadilla - Viande hachée", image:"assets/quesadillas.png", desc:"Tortilla (poulet ou VH) et beaucoup de fromage.", price:27 },
+              { name:"Quesadilla - Mixte", image:"assets/quesadillas.png", desc:"Tortilla (poulet ou VH) et beaucoup de fromage.", price:28 }
+            ]
+          },
+          { name: "Tex-Mex", items: [
+              { name:"Nuggets (4 pièces)", image:"assets/nuggets.png", price:10 },
+              { name:"Nuggets (6 pièces)", image:"assets/nuggets.png", price:15 },
+              { name:"Nuggets (10 pièces)", image:"assets/nuggets.png", price:25 },
+              { name:"Onion Rings (5 pièces)", image:"assets/onion.png", price:10 },
+              { name:"Onion Rings (8 pièces)", image:"assets/onion.png", price:15 },
+              { name:"Onion Rings (12 pièces)", image:"assets/onion.png", price:20 },
+              { name:"Bâtonnets Poulet (5 pièces)", image:"assets/batton.png", price:10 },
+              { name:"Bâtonnets Poulet (8 pièces)", image:"assets/batton.png", price:15 },
+              { name:"Bâtonnets Poulet (12 pièces)", image:"assets/batton.png", price:20 },
+              { name:"Strips Poulet (5 pièces + frites)", image:"assets/strips.png", price:29 }
+            ]},
+          { name: "Desserts", items: [
+              { name:"Tiramisu", image:"assets/tiramisu.png", desc:"Oreo, Chocolat, Caramel, Snickers, Twix, KitKat (au choix).", price:15 }
+            ]},
+          { name: "Boissons", items: [
+              { name:"Boisson gazeuse 25cl", image:"assets/soda25.png", price:7, options:["Coca-Cola","Coca-Cola Zero","Fanta Orange","Fanta Citron","Hawaï","Poms","Orangina","Sprite"], optionsLabel:"Boisson" },
+              { name:"Boisson gazeuse 50cl", image:"assets/soda50.png", price:10, options:["Coca-Cola Maxi","Schweppes Citron","Schweppes Pulpina","Schweppes Tonic"], optionsLabel:"Boisson" },
+              { name:"Eau minérale", image:"assets/eau.png", price:5 },
+              { name:"Oulmes 50cl", image:"assets/oulmes.png", price:7 },
+              { name:"Lipton Ice Tea", image:"assets/lipton.png", price:10, options:["Citron","Pêche"], optionsLabel:"Saveur" },
+              { name:"Exotiques", image:"assets/oasis.png", price:12, options:["Oasis","7UP Mojito","Tropico"], optionsLabel:"Boisson" },
+              { name:"Café expresso", image:"assets/expresso.png", price:7 },
+              { name:"Mojito (sans alcool)", image:"assets/mojito.png", price:16 },
+              { name:"Jus d'orange", image:"assets/orange.png", price:12 }
+            ]},
+          { name: "Extras", items: [
+              { name:"Frites Poutine", image:"assets/poutine.png", desc:"Frites, sauce fromage, sauce brune, fromage, viande au choix.", variants:[
+                  { name:"Poulet", price:25 },
+                  { name:"Nuggets", price:27 },
+                  { name:"Merguez", price:27 },
+                  { name:"Cordon Bleu", price:30 },
+                  { name:"Mixte", price:30 }
+                ], variantLabel:"Viande"
+              },
+              { name:"Menu", image:"assets/menu.png",desc:"Frites, Boisson 25cl", price:10,options:["Coca-Cola","Coca-Cola Zero","Fanta Orange","Fanta Citron","Hawaï","Poms","Orangina","Sprite"], optionsLabel:"Boisson" } ,
+              { name:"Plat frites", image:"assets/fries.png", price:7 },
+              { name:"Frites épicées", image:"assets/friesep.png", price:8 },
+              { name:"Potatos", image:"assets/potatos.png", price:10 },
+              { name:"Chips crevettes", image:"assets/chips.png", price:10 },
+              { name:"Sauce (supplément)", image:"assets/sauce.png", price:2, optionsFrom:"tacos_sauces", optionsLabel:"Sauce" }
+              
+            ]}
+        ]}
+    };
+
+    // Added lists
+    const TACOS_MEATS = ["Viande hachée","Poulet","Nuggets","Merguez","Cordon bleu","Poisson","Tenders (fait maison)"];
+    const TIRAMISU_FLAVORS = ["Oreo","Chocolat","Caramel","Snickers","Twix","KitKat"];
+
+    // ====== Cart state ======
+    let cart = [];
+    try { cart = JSON.parse(localStorage.getItem('yallah_cart') || '[]'); } catch(e){ cart = []; }
+    let currentItem = null;
+    let currentQuantity = 1;
+
+    // i18n
+    function t(key){ return (DATA.ui[LANG] && DATA.ui[LANG][key]) || (DATA.ui['fr'] && DATA.ui['fr'][key]) || key; }
+    let LANG = 'fr';
+    function applyHtmlLangDir(){
+      const html = document.documentElement;
+      html.lang = LANG;
+      html.dir = (LANG==='ar' ? 'rtl' : 'ltr');
+    }
+    function setLang(l){
+      LANG = l; applyHtmlLangDir();
+      try{ localStorage.setItem('yallah_lang', LANG); }catch(e){}
+      renderAll();
+    }
+
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+    const fmt = (v)=> new Intl.NumberFormat(LANG==='ar'?'ar-MA':(LANG==='en'?'en-US':'fr-MA'), { style:'currency', currency:'MAD' }).format(v||0);
+    function money(v){ return v==null?'-':fmt(v); }
+
+    function saveCart(){ try{ localStorage.setItem('yallah_cart', JSON.stringify(cart)); }catch(e){} updateCartUI(); }
+    function updateCartUI(){
+      const btn = $('#floatingCartBtn');
+      const count = cart.reduce((n,i)=>n+i.quantity,0);
+      const total = cart.reduce((n,i)=>n+i.price*i.quantity,0);
+      $('#floatCartCount').textContent = count;
+      $('#floatCartTotal').textContent = count ? `· ${money(total)}` : '';
+      btn.classList.toggle('hidden', count===0);
+    }
+
+    function showToast(msg, type='ok'){
+      const wrap = document.getElementById('toastWrap');
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.innerHTML = type==='ok'
+        ? `<span>✅</span><span>${msg}</span>`
+        : `<span>🗑️</span><span>${msg}</span>`;
+      wrap.appendChild(el);
+      setTimeout(()=>{ el.classList.add('hide'); setTimeout(()=>el.remove(), 260); }, 1000);
+    }
+
+    function generateCartId(item, section){ return `${section.name}-${item.name}-${JSON.stringify(item.selectedOptions || {})}`; }
+
+    function openCart(){ renderCart(); $('#cartModal').showModal(); $('#cartModal').focus(); }
+    function closeCart(){ $('#cartModal').close(); }
+
+    function clearCart(){
+      if (confirm('Êtes-vous sûr de vouloir vider le panier?')) {
+        cart = [];
+        saveCart(); renderCart();
+        showToast('Panier vidé', 'del');
+      }
+    }
+    function removeFromCart(index){
+      cart.splice(index,1); saveCart(); renderCart();
+      showToast('Supprimé avec succès', 'del');
+    }
+    function updateCartQuantity(index, newQty){
+      if(newQty<=0){ removeFromCart(index); return; }
+      cart[index].quantity = newQty; saveCart(); renderCart();
+    }
+
+    function renderCart(){
+      const itemsEl = $('#cartItems');
+      const emptyEl = $('#cartEmpty');
+      const footerEl = $('#cartFooter');
+      if(cart.length===0){ itemsEl.innerHTML=''; emptyEl.classList.remove('hidden'); footerEl.classList.add('hidden'); return; }
+      emptyEl.classList.add('hidden'); footerEl.classList.remove('hidden');
+      let total = 0;
+      itemsEl.innerHTML = cart.map((item, idx)=>{
+        const itemTotal = item.price * item.quantity; total += itemTotal;
+        const optionsText = item.selectedOptions ? Object.entries(item.selectedOptions)
+          .filter(([k,v])=>v && v!=='').map(([k,v])=>`${k}: ${Array.isArray(v)?v.join(', '):v}`).join(' • ') : '';
+        return `
+          <div class="border rounded-lg p-3 bg-white shadow-sm">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <h5 class="font-semibold">${item.name}</h5>
+                <p class="text-sm text-slate-600">${item.section}</p>
+                ${optionsText ? `<p class="text-xs text-slate-500">${optionsText}</p>` : ''}
+              </div>
+              <button type="button" onclick="removeFromCart(${idx})" class="text-red-500 text-sm" aria-label="Supprimer">✕</button>
+            </div>
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="updateCartQuantity(${idx}, ${item.quantity - 1})" class="w-6 h-6 rounded border text-sm">-</button>
+                <span class="text-sm">${item.quantity}</span>
+                <button type="button" onclick="updateCartQuantity(${idx}, ${item.quantity + 1})" class="w-6 h-6 rounded border text-sm">+</button>
+              </div>
+              <span class="font-semibold">${money(itemTotal)}</span>
+            </div>
+          </div>`;
+      }).join('');
+      $('#cartTotal').textContent = money(total);
+      updateCartUI();
+    }
+
+    function sendWhatsAppOrder(){
+      const selectedLocation = $('#locationSelect').value;
+      const loc = DATA.locations.find(l=>l.id===selectedLocation);
+      if(!loc){ alert('Veuillez sélectionner un restaurant'); return; }
+
+      // Read service mode (Sur place / Livraison)
+      const serviceMode = document.querySelector('input[name="serviceMode"]:checked')?.value || 'Livraison';
+
+      const lines = [];
+      lines.push(' *Nouvelle commande Yallah Naklou*');
+      lines.push('');
+      lines.push(` *Restaurant:* ${loc.name}`);
+      lines.push(` *Mode de service:* ${serviceMode}`);
+      lines.push(` *Date:* ${new Date().toLocaleString('fr-FR')}`);
+      lines.push('');
+      lines.push(' *Détails de la commande:*');
+
+      let total = 0;
+      cart.forEach((item, i)=>{
+        const itemTotal = item.price * item.quantity; total += itemTotal;
+        lines.push('');
+        lines.push(`${i+1}. *${item.name}* (${item.section})`);
+        if(item.selectedOptions){
+          Object.entries(item.selectedOptions).forEach(([k,v])=>{
+            if(v && v!==''){
+              const displayValue = Array.isArray(v) ? v.join(', ') : v;
+              lines.push(`   • ${k}: ${displayValue}`);
+            }
+          });
+        }
+        lines.push(`   • Quantité: ${item.quantity}`);
+        lines.push(`   • Prix unitaire: ${money(item.price)}`);
+        lines.push(`   • Sous-total: ${money(itemTotal)}`);
+      });
+
+      lines.push('');
+      lines.push(` *Total: ${money(total)}*`);
+      lines.push('');
+      lines.push('Merci pour votre commande! ');
+
+      const text = lines.join('\n');
+      const phone = (loc.phone || '').replace(/[^\d]/g, '');
+      const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+      window.open(whatsappUrl, '_blank');
+    }
+
+    // ====== Add-to-cart modal ======
+    function openAddToCart(item, section){
+      currentItem = { ...item, section: section.name, _sectionRef: section };
+      currentQuantity = 1;
+      $('#addToCartTitle').textContent = item.name;
+      $('#quantity').textContent = currentQuantity;
+      renderAddToCartOptions(item, section);
+      $('#addToCartModal').showModal();
+    }
+    function closeAddToCart(){ $('#addToCartModal').close(); currentItem = null; }
+    function increaseQuantity(){ currentQuantity++; $('#quantity').textContent = currentQuantity; }
+    function decreaseQuantity(){ if(currentQuantity>1){ currentQuantity--; $('#quantity').textContent = currentQuantity; } }
+
+    // Render options (sizes, sauces, item options, variants)
+    function renderAddToCartOptions(item, section){
+      const content = $('#addToCartContent'); let html = '';
+      if(item.desc){ html += `<p class="text-sm text-slate-600 mb-4">${item.desc}</p>`; }
+
+      // Variants (e.g., Frites Poutine)
+      if(Array.isArray(item.variants) && item.variants.length){
+        const label = item.variantLabel || 'Variante';
+        html += `<div class="mb-4">
+          <span class="block font-medium mb-2">${label} (obligatoire):</span>
+          <div class="grid grid-cols-1 gap-2">`;
+        item.variants.forEach((v, idx)=>{
+          const id = `variant_${idx}`;
+          html += `<label for="${id}" class="flex items-center gap-2 border rounded-lg p-2 hover:bg-amber-50 cursor-pointer">
+            <input id="${id}" type="radio" name="variant_choice" value="${v.name}" data-price="${v.price}">
+            <span class="flex-1">${v.name}</span>
+            <span class="text-sm font-medium">${money(v.price)}</span>
+          </label>`;
+        });
+        html += `</div></div>`;
+      }
+
+      // Item-level single choice (Boissons, Sauce supplément)
+      let optionsList = null;
+      if(Array.isArray(item.options) && item.options.length){
+        optionsList = item.options;
+      } else if(item.optionsFrom === 'tacos_sauces'){
+        const tacosSection = DATA.menu.sections.find(s=>s.name.toLowerCase().includes('tacos'));
+        optionsList = tacosSection?.options?.sauces || [];
+      }
+      if(optionsList && optionsList.length){
+        const label = item.optionsLabel || 'Option';
+        html += `<div class="mb-4">
+          <span class="block font-medium mb-2">${label} (obligatoire):</span>
+          <div class="grid grid-cols-2 gap-2">`;
+        optionsList.forEach((opt, idx)=>{
+          const id = `opt_${idx}`;
+          html += `<label for="${id}" class="flex items-center gap-2 border rounded-lg p-2 hover:bg-amber-50 cursor-pointer">
+            <input id="${id}" type="radio" name="item_option_choice" value="${opt}">
+            <span>${opt}</span>
+          </label>`;
+        });
+        html += `</div></div>`;
+      }
+
+      // Size options for items with multi-size prices (tacos)
+      if(item.prices){
+        html += `<div class="mb-4">
+          <label class="block font-medium mb-2">${t('size')}:</label>
+          <div class="grid grid-cols-2 gap-2">`;
+        Object.entries(item.prices).forEach(([size, price])=>{
+          if(price!==null){
+            const id = `size_${size}`;
+            html += `<label for="${id}" class="border rounded-lg p-2 cursor-pointer hover:bg-amber-50 flex items-center gap-2">
+              <input id="${id}" type="radio" name="size" value="${size}" data-price="${price}" ${size==='M'?'checked':''}>
+              <span>${size}: ${money(price)}</span>
+            </label>`;
+          }
+        });
+        html += `</div></div>`;
+      }
+
+      // Tacos-only extras/options
+      if(section.options){
+        if(section.options.sauces){
+          const id = "sauce_select";
+          html += `<div class="mb-4">
+            <label for="${id}" class="block font-medium mb-2">${t('sauce')}:</label>
+            <select id="${id}" name="sauce" class="w-full p-2 border rounded-lg">
+              <option value="">Choisir une sauce</option>`;
+          section.options.sauces.forEach(s=> html += `<option value="${s}">${s}</option>`);
+          html += `</select></div>`;
+
+          const idExtra = "sauce_extra_select";
+          html += `<div class="mb-4">
+            <label for="${idExtra}" class="block font-medium mb-2">Sauce supplémentaire (optionnel):</label>
+            <select id="${idExtra}" name="sauce_extra" class="w-full p-2 border rounded-lg">
+              <option value="">Aucune</option>`;
+          section.options.sauces.forEach(s=> html += `<option value="${s}">${s}</option>`);
+          html += `</select></div>`;
+        }
+        if(section.options.gratin){
+          html += `<div class="mb-4"><span class="block font-medium mb-2">${t('gratin')}:</span>`;
+          section.options.gratin.forEach((g,idx)=>{
+            const id=`gr_${idx}`;
+            html += `<label for="${id}" class="flex items-center mb-2">
+              <input id="${id}" type="checkbox" name="gratin" value="${g.name}" class="mr-2"> ${g.name} (+${money(g.add.M || 0)})
+            </label>`;
+          });
+          html += `</div>`;
+        }
+        if(section.options.supplements){
+          html += `<div class="mb-4"><span class="block font-medium mb-2">${t('supplements')}:</span>`;
+          section.options.supplements.forEach((sup,idx)=>{
+            const id=`sup_${idx}`;
+            html += `<label for="${id}" class="flex items-center mb-2">
+              <input id="${id}" type="checkbox" name="supplements" value="${sup.name}" data-price="${sup.price}" class="mr-2"> ${sup.name} (+${money(sup.price)})
+            </label>`;
+          });
+          html += `</div>`;
+        }
+      }
+
+      // Mixte tacos meats selection
+      if(section.name.toLowerCase().includes('tacos') && /^Mixte \((2|3) viandes au choix\)/.test(item.name)){
+        const requiredCount = item.name.includes('(2') ? 2 : 3;
+        html += `<div class="mb-4">
+          <span class="block font-medium mb-2">Viandes (choisir exactement ${requiredCount}):</span>
+          <div class="grid grid-cols-2 gap-2">`;
+        TACOS_MEATS.forEach((meat, idx)=>{
+          const id=`meat_${idx}`;
+          html += `<label for="${id}" class="flex items-center gap-2 border rounded-lg p-2">
+            <input id="${id}" type="checkbox" name="meats" value="${meat}"> <span>${meat}</span>
+          </label>`;
+        });
+        html += `</div>
+          <p class="text-xs text-slate-500 mt-1">Sélection requise: ${requiredCount} viandes.</p>
+        </div>`;
+      }
+
+      // Tiramisu flavor
+      if(item.name === 'Tiramisu'){
+        html += `<div class="mb-4">
+          <span class="block font-medium mb-2">Saveur (obligatoire):</span>
+          <div class="grid grid-cols-2 gap-2">`;
+        TIRAMISU_FLAVORS.forEach((flv, idx)=>{
+          const id=`tira_${idx}`;
+          html += `<label for="${id}" class="flex items-center gap-2 border rounded-lg p-2">
+            <input id="${id}" type="radio" name="tiramisu_flavor" value="${flv}"> <span>${flv}</span>
+          </label>`;
+        });
+        html += `</div></div>`;
+      }
+      content.innerHTML = html;
+    }
+
+    // Add to cart with validations
+    function addToCart(){
+      if(!currentItem) return;
+      const selectedOptions = {}; 
+      let basePrice = currentItem.price || 0;
+
+      // Variants
+      if(Array.isArray(currentItem.variants) && currentItem.variants.length){
+        const sel = document.querySelector('input[name="variant_choice"]:checked');
+        if(!sel){
+          alert(`Veuillez sélectionner ${currentItem.variantLabel || 'une variante'}.`);
+          return;
+        }
+        selectedOptions[currentItem.variantLabel || 'Variante'] = sel.value;
+        basePrice = parseFloat(sel.dataset.price);
+      }
+
+      // Required single-choice options
+      if((Array.isArray(currentItem.options) && currentItem.options.length) || currentItem.optionsFrom === 'tacos_sauces'){
+        const selOpt = document.querySelector('input[name="item_option_choice"]:checked');
+        if(!selOpt){
+          alert(`Veuillez sélectionner ${currentItem.optionsLabel || 'une option'}.`);
+          return;
+        }
+        selectedOptions[currentItem.optionsLabel || 'Option'] = selOpt.value;
+      }
+
+      // size
+      const sizeInput = document.querySelector('input[name="size"]:checked');
+      let size = null;
+      if(sizeInput){ selectedOptions['Taille'] = sizeInput.value; size = sizeInput.value; basePrice = parseFloat(sizeInput.dataset.price); }
+
+      // sauce (tacos)
+      const sauceSelect = document.querySelector('select[name="sauce"]');
+      if(sauceSelect && sauceSelect.value){ selectedOptions['Sauce'] = sauceSelect.value; }
+
+      // extra sauce
+      const sauceExtraSelect = document.querySelector('select[name="sauce_extra"]');
+      if(sauceExtraSelect && sauceExtraSelect.value){ selectedOptions['Sauce supplémentaire'] = sauceExtraSelect.value; }
+
+      // Mixte tacos meats
+      if(currentItem.section.toLowerCase().includes('tacos') && /^Mixte \((2|3) viandes au choix\)/.test(currentItem.name)){
+        const requiredCount = currentItem.name.includes('(2') ? 2 : 3;
+        const meats = Array.from(document.querySelectorAll('input[name="meats"]:checked')).map(i=>i.value);
+        if(meats.length !== requiredCount){
+          alert(`Veuillez sélectionner exactement ${requiredCount} viande(s).`);
+          return;
+        }
+        selectedOptions['Viandes'] = meats;
+      }
+
+      // Tiramisu flavor
+      if(currentItem.name === 'Tiramisu'){
+        const flv = document.querySelector('input[name="tiramisu_flavor"]:checked')?.value || '';
+        if(!flv){
+          alert('Veuillez choisir une saveur de tiramisu.');
+          return;
+        }
+        selectedOptions['Saveur'] = flv;
+      }
+
+      // Gratin add-on
+      const gratinInputs = Array.from(document.querySelectorAll('input[name="gratin"]:checked'));
+      if(gratinInputs.length){
+        const names = []; 
+        gratinInputs.forEach(i=>{
+          names.push(i.value);
+          const opt = (currentItem._sectionRef && currentItem._sectionRef.options && currentItem._sectionRef.options.gratin || []).find(g=>g.name===i.value);
+          const addMap = opt && opt.add ? opt.add : null;
+          if(addMap && size){ basePrice += parseFloat(addMap[size] || 0); }
+        });
+        selectedOptions['Gratin'] = names;
+      }
+
+      // Supplements add-on
+      const supInputs = Array.from(document.querySelectorAll('input[name="supplements"]:checked'));
+      if(supInputs.length){ 
+        selectedOptions['Suppléments'] = supInputs.map(i=>i.value); 
+        supInputs.forEach(i=> basePrice += parseFloat(i.dataset.price||0)); 
+      }
+
+      const cartId = generateCartId(currentItem, { name: currentItem.section });
+      const existingIndex = cart.findIndex(it => it.cartId===cartId && JSON.stringify(it.selectedOptions)===JSON.stringify(selectedOptions));
+      if(existingIndex>=0){ cart[existingIndex].quantity += currentQuantity; } else {
+        cart.push({ cartId, name: currentItem.name, section: currentItem.section, price: basePrice, quantity: currentQuantity, selectedOptions });
+      }
+      saveCart(); closeAddToCart();
+      showToast('Ajouté avec succès', 'ok');
+    }
+
+    // ====== Image helpers (use IMAGE_CFG and item.image override) ======
+    function menuImageTag(item, sectionName, altText){
+      const sectionImg = IMAGE_CFG.categories[sectionName] || '';
+      const sectionFallback = IMAGE_CFG.fallbacks.categories[sectionName] || IMAGE_CFG.fallbacks.categories['Extras'];
+      const primary = (item && item.image && String(item.image).trim()) ? item.image : sectionImg;
+      const src = primary || sectionFallback;
+      const alt = altText || item?.name || sectionName;
+      return `<img src="${src}" onerror="this.onerror=null; this.src='${sectionFallback}'" alt="${alt}" class="card-img" loading="lazy" decoding="async">`;
+    }
+    function locationImageTag(loc){
+      const src = (loc.image && String(loc.image).trim()) ? loc.image : IMAGE_CFG.fallbacks.location;
+      return `<img src="${src}" onerror="this.onerror=null; this.src='${IMAGE_CFG.fallbacks.location}'" alt="${loc.name}" class="card-img" loading="lazy" decoding="async">`;
+    }
+    function cardImage(sectionName){
+      const src = IMAGE_CFG.categories[sectionName] || '';
+      const fallback = IMAGE_CFG.fallbacks.categories[sectionName] || IMAGE_CFG.fallbacks.categories['Extras'];
+      return `<img src="${src || fallback}" onerror="this.onerror=null; this.src='${fallback}'" alt="${sectionName}" class="card-img" loading="lazy" decoding="async">`;
+    }
+
+    // ====== Renderers ======
+    function renderHero(){
+      // Taglines
+      $('#tagline').textContent = LANG==='fr' ? DATA.brand.tagline_fr : LANG==='en' ? DATA.brand.tagline_en : DATA.brand.tagline_ar;
+      $('#taglineSmall').textContent = $('#tagline').textContent;
+      // Images from IMAGE_CFG
+      const brand = $('#brandLogo'); if(brand){ brand.src = IMAGE_CFG.brand.logo; }
+      const heroLogo = $('#heroLogoImage'); if(heroLogo){ heroLogo.src = IMAGE_CFG.brand.hero_logo; }
+      const heroBg = $('#heroBgImage'); if(heroBg){ heroBg.src = IMAGE_CFG.hero.bg; }
+    }
+
+    function renderPopular(){
+      const wrap = $('#popularList'); wrap.innerHTML='';
+      const tacos = DATA.menu.sections.find(s => s.name.toLowerCase().includes('tacos'));
+      if(!tacos) return;
+      const items = tacos.items.filter(i => i.popular || ['Poulet','Mixte (2 viandes au choix)'].includes(i.name)).slice(0,6);
+      items.forEach(it => {
+        const div = document.createElement('div');
+        // made the card wider to complement bigger images
+        div.className = 'min-w-[300px] border bg-white rounded-2xl p-4 shadow-soft';
+        div.innerHTML = `
+          ${menuImageTag(it, tacos.name, it.name)}
+          <div class="text-sm text-slate-500 mb-1">${tacos.name}</div>
+          <div class="font-semibold">${it.name}</div>
+          <div class="mt-2 flex gap-2 flex-wrap text-xs">
+            ${Object.entries(it.prices||{}).map(([k,v])=>`<span class='px-2 py-1 bg-slate-100 rounded-full border'>${k}: ${money(v)}</span>`).join('')}
+          </div>
+          <button type="button" class='mt-3 px-3 py-1.5 rounded-lg bg-[color:var(--primary)] text-[color:var(--primary-ink)] text-sm font-semibold ring-soft'
+                  data-i18n='add_to_cart'>${t('add_to_cart')}</button>`;
+        div.querySelector('button').addEventListener('click', ()=> openAddToCart(it, tacos));
+        wrap.appendChild(div);
+      });
+    }
+
+    function renderMenu(){
+      const tabs = $('#menuTabs'); const content = $('#menuContent');
+      tabs.innerHTML=''; content.innerHTML='';
+      DATA.menu.sections.forEach((section, idx)=>{
+        const btn = document.createElement('button');
+        btn.type = "button";
+        btn.className = 'px-3 py-1.5 rounded-full border bg-white hover:bg-amber-50';
+        btn.textContent = section.name;
+        btn.onclick = () => showSection(idx);
+        tabs.appendChild(btn);
+      });
+      showSection(0);
+
+      function showSection(i){
+        content.innerHTML='';
+        DATA.menu.sections.forEach((s, idx)=> tabs.children[idx].classList.toggle('bg-[color:var(--primary)]', idx===i));
+        const s = DATA.menu.sections[i];
+        if(s.notes){
+          const note = document.createElement('div');
+          note.className = 'md:col-span-2 mb-2 text-sm text-slate-600';
+          note.textContent = s.notes; content.appendChild(note);
+        }
+        if(s.items){ s.items.forEach(item => content.appendChild(renderItemCard(item, s))); }
+        if(s.subsections){
+          s.subsections.forEach(sub=>{
+            const hd = document.createElement('h4');
+            hd.className = 'md:col-span-2 text-lg font-bold mt-4'; hd.textContent = sub.name; content.appendChild(hd);
+            if(sub.desc){ const d = document.createElement('p'); d.className='md:col-span-2 text-sm text-slate-600 mb-2'; d.textContent=sub.desc; content.appendChild(d); }
+            (sub.variants||[]).forEach(v => content.appendChild(renderItemCard(v, s)));
+          });
+        }
+      }
+    }
+
+    function renderItemCard(item, section){
+      const card = document.createElement('div');
+      card.className = 'border rounded-2xl p-4 bg-white shadow-soft';
+      const imgWrap = document.createElement('div');
+      imgWrap.innerHTML = menuImageTag(item, section.name, item.name);
+      const title = document.createElement('div');
+      title.className = 'font-semibold'; title.textContent = item.name;
+      const desc = document.createElement('div');
+      desc.className = 'text-sm text-slate-600 mt-1'; desc.textContent = item.desc||'';
+      const price = document.createElement('div');
+      price.className = 'mt-2 text-sm flex flex-wrap gap-2';
+      if(item.prices){
+        price.innerHTML = Object.entries(item.prices).map(([k,v])=>`<span class='px-2 py-1 rounded-full bg-slate-100 border'>${k}: ${money(v)}</span>`).join('');
+      } else if(Array.isArray(item.variants) && item.variants.length){
+        price.innerHTML = item.variants.map(v=>`<span class='px-2 py-1 rounded-full bg-slate-100 border'>${v.name}: ${money(v.price)}</span>`).join('');
+      } else if(item.price!=null){ 
+        price.textContent = money(item.price); 
+      }
+      const ctas = document.createElement('div'); ctas.className='mt-3 flex gap-2';
+      const addBtn = document.createElement('button');
+      addBtn.type = "button";
+      addBtn.className = 'px-3 py-1.5 rounded-lg bg-[color:var(--primary)] text-[color:var(--primary-ink)] text-sm font-semibold ring-soft';
+      addBtn.textContent = t('add_to_cart');
+      addBtn.onclick = () => openAddToCart(item, section);
+      ctas.appendChild(addBtn);
+      card.append(imgWrap, title, desc, price, ctas);
+      return card;
+    }
+
+    function renderLocations(){
+      const wrap = $('#locationCards'); wrap.innerHTML='';
+      DATA.locations.forEach(loc=>{
+        const card = document.createElement('div');
+        card.className = 'border rounded-2xl p-4 bg-white text-black shadow-soft';
+        const hours = Object.entries(loc.hours).map(([d,h])=>`<li class='flex justify-between'><span class='capitalize'>${d}</span><span>${h}</span></li>`).join('');
+        card.innerHTML = `
+          ${locationImageTag(loc)}
+          <h4 class="text-lg font-bold">${loc.name}</h4>
+          <p class="text-sm text-slate-700">${loc.address}</p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <a class="px-3 py-1.5 rounded-lg bg-slate-900 text-white text-sm" href="tel:${loc.phone}">${t('call')}</a>
+            <a class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-sm" href="${loc.whatsapp}" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+            <a class="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-sm" href="${loc.maps_url}" target="_blank" rel="noopener noreferrer">${t('directions')}</a>
+            <a class="px-3 py-1.5 rounded-lg bg-[color:var(--primary)] text-[color:var(--primary-ink)] font-semibold text-sm" href="${loc.glovo_url}" target="_blank" rel="noopener noreferrer">${t('order_glovo')}</a>
+          </div>
+          <h5 class="mt-4 font-semibold">${t('hours')}</h5>
+          <ul class="mt-1 space-y-1 text-sm">${hours}</ul>
+          <p class="mt-3 text-xs text-slate-600">Espèces · Paiement à la livraison · Cartes de crédit · Cartes de débit · NFC</p>`;
+        wrap.appendChild(card);
+      });
+    }
+
+    function injectJSONLD(){
+      DATA.locations.forEach(loc=>{
+        const spec = [
+          { dayOfWeek:'Monday', opens:loc.hours.lundi?.split('–')[0]?.replace('.',':')||'12:00', closes:loc.hours.lundi?.split('–')[1]||'00:00' },
+          { dayOfWeek:'Tuesday', opens:loc.hours.mardi?.split('–')[0]||'12:00', closes:loc.hours.mardi?.split('–')[1]||'00:00' },
+          { dayOfWeek:'Wednesday', opens:loc.hours.mercredi?.split('–')[0]||'12:00', closes:loc.hours.mercredi?.split('–')[1]||'00:00' },
+          { dayOfWeek:'Thursday', opens:loc.hours.jeudi?.split('–')[0]||'12:00', closes:loc.hours.jeudi?.split('–')[1]||'00:00' },
+          { dayOfWeek:'Friday', opens:loc.hours.vendredi?.split('–')[0]||'12:00', closes:loc.hours.vendredi?.split('–')[1]||'00:00' },
+          { dayOfWeek:'Saturday', opens:loc.hours.samedi?.split('–')[0]||'12:00', closes:loc.hours.samedi?.split('–')[1]||'00:00' },
+          { dayOfWeek:'Sunday', opens:loc.hours.dimanche?.split('–')[0]||'12:00', closes:loc.hours.dimanche?.split('–')[1]||'00:00' }
+        ].map(x=>({"@type":"OpeningHoursSpecification", dayOfWeek:x.dayOfWeek, opens:x.opens, closes:x.closes }));
+        const json = {
+          "@context":"https://schema.org",
+          "@type":"Restaurant",
+          name: loc.name,
+          telephone: loc.phone,
+          servesCuisine: ["Halal","French Tacos","Grillades","Tex-Mex"],
+          address: { "@type":"PostalAddress", streetAddress: loc.address.split(',')[0], addressLocality: "Fès", postalCode: loc.address.match(/\b\d{5}\b|\b\d{4,5}\b/)?.[0]||"30000", addressCountry: "MA" },
+          areaServed: "Fès",
+          sameAs: [ "https://web.facebook.com/YallahNaklou", "https://www.instagram.com/yallah_naklou_fez" ],
+          hasMap: loc.maps_url,
+          openingHoursSpecification: spec,
+          potentialAction: { "@type":"OrderAction", target: { "@type":"EntryPoint", urlTemplate: loc.glovo_url }},
+          paymentAccepted: ["Cash","Cash on Delivery","Credit Card","Debit Card","NFC Mobile"],
+          priceRange: DATA.menu.currency
+        };
+        const s = document.createElement('script'); s.type = 'application/ld+json'; s.textContent = JSON.stringify(json); document.head.appendChild(s);
+      });
+    }
+
+    function openGlovoChooser(){
+      const dlg = $('#glovoModal');
+      const wrap = $('#glovoChoices'); wrap.innerHTML = '';
+      DATA.locations.forEach(loc=>{
+        const btn = document.createElement('button');
+        btn.type="button";
+        btn.className = 'w-full px-3 py-2 rounded-lg border bg-white hover:bg-amber-50 text-left';
+        btn.innerHTML = `<div class="font-semibold">${loc.name}</div><div class="text-sm text-slate-600">${loc.address}</div>`;
+        btn.onclick = ()=>{ window.open(loc.glovo_url, '_blank'); dlg.close(); try{ localStorage.setItem('yallah_glovo_loc', loc.id);}catch(e){} };
+        wrap.appendChild(btn);
+      });
+      dlg.showModal();
+    }
+
+    function toggleChooser(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+      ['callChooser','waChooser'].forEach(x=>{ if(x!==id){ const n=document.getElementById(x); n && n.classList.add('hidden'); } });
+      el.classList.toggle('hidden');
+    }
+    function confirmCall(){
+      const id = document.getElementById('callSelect').value;
+      const loc = DATA.locations.find(l=>l.id===id);
+      if(loc){ window.location.href = `tel:${loc.phone}`; }
+      document.getElementById('callChooser').classList.add('hidden');
+    }
+    function confirmWhatsApp(){
+      const id = document.getElementById('waSelect').value;
+      const loc = DATA.locations.find(l=>l.id===id);
+      if(loc){ window.open(loc.whatsapp, '_blank'); }
+      document.getElementById('waChooser').classList.add('hidden');
+    }
+
+    function renderAll(){
+      document.getElementById('year').textContent = new Date().getFullYear();
+      renderHero(); renderPopular(); renderMenu(); renderLocations();
+      $$('[data-i18n]').forEach(el => { const key = el.getAttribute('data-i18n'); el.textContent = t(key); });
+      updateCartUI();
+    }
+
+    document.addEventListener('keydown', (e)=>{
+      if(e.key==='Escape'){
+        ['cartModal','addToCartModal','glovoModal'].forEach(id=>{ const d = document.getElementById(id); if(d && d.open) d.close(); });
+        ['callChooser','waChooser'].forEach(id=>{ const el=document.getElementById(id); el && el.classList.add('hidden'); });
+      }
+    });
+
+    ['cartModal','addToCartModal'].forEach(id=>{
+      const d = document.getElementById(id);
+      d?.addEventListener('close', ()=>{ document.activeElement && document.activeElement.blur(); });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      try{ LANG = localStorage.getItem('yallah_lang') || LANG; }catch(e){}
+      applyHtmlLangDir();
+      $('#floatingCartBtn').addEventListener('click', openCart);
+      $('#heroGlovo').addEventListener('click', openGlovoChooser);
+      $('#contactGlovo').addEventListener('click', openGlovoChooser);
+      $('#heroCallBtn').addEventListener('click', () => toggleChooser('callChooser'));
+      $('#heroWhatsAppBtn').addEventListener('click', () => toggleChooser('waChooser'));
+      renderAll(); injectJSONLD();
+    });
+  </script>
+</body>
+</html>
